@@ -1,0 +1,70 @@
+import random
+import time
+
+def red_light_green_light():
+    print("Welcome to Red Light, Green Light!")
+    time.sleep(1)
+    print("You must cross the finish line without moving during 'Red Light'.")
+    
+    player_position = 0
+    finish_line = 10
+    
+    while player_position < finish_line:
+        light = random.choice(["Green Light", "Red Light"])
+        print(light)
+        if light == "Green Light":
+            move = input("Move forward? (yes/no): ").strip().lower()
+            if move == "yes":
+                player_position += 1
+                print(f"You moved to position {player_position}.")
+            else:
+                print("You chose to stay.")
+        else:
+            move = input("Did you stop? (yes/no): ").strip().lower()
+            if move == "no":
+                print("You're out! You moved during Red Light.")
+                return False
+
+    print("Congratulations! You crossed the finish line.")
+    return True
+
+def tug_of_war():
+    print("Welcome to Tug of War!")
+    time.sleep(1)
+    print("Press 'a' and 'd' alternately to pull the rope.")
+    
+    player_score = 0
+    opponent_score = 0
+    rounds = 5
+    
+    for round_number in range(1, rounds + 1):
+        print(f"Round {round_number}")
+        inputs = input("Press 'a' and 'd' repeatedly: ").strip()
+        player_score = inputs.count('a') + inputs.count('d')
+        opponent_score = random.randint(player_score - 5, player_score + 5)
+        
+        if player_score > opponent_score:
+            print(f"You win this round! (Your score: {player_score}, Opponent's score: {opponent_score})")
+        else:
+            print(f"You lost this round. (Your score: {player_score}, Opponent's score: {opponent_score})")
+    
+    if player_score > opponent_score:
+        print("You win the Tug of War!")
+        return True
+    else:
+        print("You lose the Tug of War.")
+        return False
+
+def main():
+    print("Welcome to the Squid Game!")
+    time.sleep(1)
+    if red_light_green_light():
+        if tug_of_war():
+            print("Congratulations! You survived all games.")
+        else:
+            print("Game over. You lost in Tug of War.")
+    else:
+        print("Game over. You lost in Red Light, Green Light.")
+
+if __name__ == "__main__":
+    main()
