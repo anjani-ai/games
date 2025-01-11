@@ -1,0 +1,104 @@
+import pygame
+import random
+import sys
+
+# Initialize Pygame
+pygame.init()
+
+# Screen dimensions
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Space Dodger")
+
+# Colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+
+# Game variables
+clock = pygame.time.Clock()
+FPS = 60
+
+# Spaceship
+spaceship_width, spaceship_height = 50, 50
+spaceship = pygame.Rect(WIDTH // 2, HEIGHT - 80, spaceship_width, spaceship_height)
+
+# Asteroids
+asteroid_width, asteroid_height = 50, 50
+asteroids = []
+asteroid_speed = 5
+spawn_timer = 0
+
+# Score
+score = 0
+font = pygame.font.Font(None, 36)
+
+# Functions
+def draw_spaceship():
+    pygame.draw.rect(screen, BLUE, spaceship)
+
+def draw_asteroids():
+    for asteroid in asteroids:
+        pygame.draw.rect(screen, RED, asteroid)
+
+def show_score():
+    score_text = font.render(f"Score: {score}", True, WHITE)
+    screen.blit(score_text, (10, 10))
+
+# Game loop
+running = True
+while running:
+    screen.fill(BLACK)
+
+    # Event handling
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # Spaceship movement
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT] and spaceship.left > 0:
+        spaceship.x -= 7
+    if keys[pygame.K_RIGHT] and spaceship.right < WIDTH:
+        spaceship.x += 7
+
+    # Asteroid spawning
+    spawn_timer += 1
+    if spawn_timer > 30:  # Spawn a new asteroid every 30 frames
+        asteroid_x = random.randint(0, WIDTH - asteroid_width)
+        new_asteroid = pygame.Rect(asteroid_x, 0, asteroid_width, asteroid_height)
+        asteroids.append(new_asteroid)
+        spawn_timer = 0
+
+    # Asteroid movement
+    for asteroid in asteroids[:]:
+        asteroid.y += asteroid_speed
+        if asteroid.top > HEIGHT:
+            asteroids.remove(asteroid)
+            score += 1  # Increment score for dodging an asteroid
+
+    # Collision detection
+    for asteroid in asteroids:
+        if spaceship.colliderect(asteroid):
+            running = False
+
+    # Draw everything
+    draw_spaceship()
+    draw_asteroids()
+    show_score()
+
+    # Update the screen
+    pygame.display.flip()
+    clock.tick(FPS)
+
+# Game over screen
+screen.fill(BLACK)
+game_over_text = font.render(f"Game Over! Final Score: {score}", True, WHITE)
+screen.blit(game_over_text, (WIDTH // 2 - 150, HEIGHT // 2))
+pygame.display.flip()
+pygame.time.wait(3000)
+
+# Quit Pygame
+pygame.quit()
+sys.exit()
