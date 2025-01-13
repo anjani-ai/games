@@ -1,0 +1,128 @@
+import pygame
+import random
+import sys
+
+# Initialize Pygame
+pygame.init()
+
+# Screen dimensions
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Fruit Catcher")
+
+# Colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+YELLOW = (255, 255, 0)
+
+# Game variables
+clock = pygame.time.Clock()
+FPS = 60
+
+# Basket
+basket_width, basket_height = 100, 20
+basket = pygame.Rect(WIDTH // 2 - basket_width // 2, HEIGHT - 50, basket_width, basket_height)
+
+# Fruits and bombs
+fruit_size = 30
+fruits = []
+bombs = []
+fruit_speed = 5
+spawn_timer = 0
+
+# Score and lives
+score = 0
+lives = 3
+font = pygame.font.Font(None, 36)
+
+# Functions
+def draw_basket():
+    pygame.draw.rect(screen, GREEN, basket)
+
+def draw_fruits():
+    for fruit in fruits:
+        pygame.draw.ellipse(screen, YELLOW, fruit)
+
+def draw_bombs():
+    for bomb in bombs:
+        pygame.draw.ellipse(screen, RED, bomb)
+
+def show_score_and_lives():
+    score_text = font.render(f"Score: {score}", True, WHITE)
+    lives_text = font.render(f"Lives: {lives}", True, WHITE)
+    screen.blit(score_text, (10, 10))
+    screen.blit(lives_text, (WIDTH - 120, 10))
+
+# Game loop
+running = True
+while running:
+    screen.fill(BLACK)
+
+    # Event handling
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # Basket movement
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT] and basket.left > 0:
+        basket.x -= 7
+    if keys[pygame.K_RIGHT] and basket.right < WIDTH:
+        basket.x += 7
+
+    # Fruit and bomb spawning
+    spawn_timer += 1
+    if spawn_timer > 30:  # Spawn every 30 frames
+        if random.random() > 0.2:  # 80% chance to spawn a fruit
+            fruit_x = random.randint(0, WIDTH - fruit_size)
+            new_fruit = pygame.Rect(fruit_x, 0, fruit_size, fruit_size)
+            fruits.append(new_fruit)
+        else:  # 20% chance to spawn a bomb
+            bomb_x = random.randint(0, WIDTH - fruit_size)
+            new_bomb = pygame.Rect(bomb_x, 0, fruit_size, fruit_size)
+            bombs.append(new_bomb)
+        spawn_timer = 0
+
+    # Fruit and bomb movement
+    for fruit in fruits[:]:
+        fruit.y += fruit_speed
+        if fruit.top > HEIGHT:
+            fruits.remove(fruit)
+            lives -= 1  # Lose a life for missing a fruit
+        elif fruit.colliderect(basket):
+            fruits.remove(fruit)
+            score += 1  # Gain a point for catching a fruit
+
+    for bomb in bombs[:]:
+        bomb.y += fruit_speed
+        if bomb.top > HEIGHT:
+            bombs.remove(bomb)
+        elif bomb.colliderect(basket):
+            running = False  # Game over if you catch a bomb
+
+    # Draw everything
+    draw_basket()
+    draw_fruits()
+    draw_bombs()
+    show_score_and_lives()
+
+    # Check for game over
+    if lives <= 0:
+        running = False
+
+    # Update the screen
+    pygame.display.flip()
+    clock.tick(FPS)
+
+# Game over screen
+screen.fill(BLACK)
+game_over_text = font.render(f"Game Over! Final Score: {score}", True, WHITE)
+screen.blit(game_over_text, (WIDTH // 2 - 150, HEIGHT // 2))
+pygame.display.flip()
+pygame.time.wait(3000)
+
+# Quit Pygame
+pygame.quit()
+sys.exit()
