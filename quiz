@@ -1,0 +1,68 @@
+const questions = [
+  {
+    question: "What is the capital of France?",
+    choices: ["Berlin", "Madrid", "Paris", "Rome"],
+    answer: "Paris"
+  },
+  {
+    question: "Which planet is known as the Red Planet?",
+    choices: ["Earth", "Mars", "Jupiter", "Saturn"],
+    answer: "Mars"
+  },
+  {
+    question: "Who wrote 'Hamlet'?",
+    choices: ["Charles Dickens", "William Shakespeare", "Mark Twain", "J.K. Rowling"],
+    answer: "William Shakespeare"
+  }
+];
+
+let currentQuestionIndex = 0;
+let score = 0;
+
+const questionElement = document.getElementById("question");
+const choicesElement = document.getElementById("choices");
+const nextButton = document.getElementById("next-btn");
+const scoreContainer = document.getElementById("score-container");
+const scoreElement = document.getElementById("score");
+const restartButton = document.getElementById("restart-btn");
+
+function showQuestion() {
+  const currentQuestion = questions[currentQuestionIndex];
+  questionElement.textContent = currentQuestion.question;
+  choicesElement.innerHTML = "";
+  currentQuestion.choices.forEach(choice => {
+    const li = document.createElement("li");
+    li.textContent = choice;
+    li.addEventListener("click", () => selectAnswer(choice));
+    choicesElement.appendChild(li);
+  });
+}
+
+function selectAnswer(choice) {
+  if (choice === questions[currentQuestionIndex].answer) {
+    score++;
+  }
+  currentQuestionIndex++;
+  if (currentQuestionIndex < questions.length) {
+    showQuestion();
+  } else {
+    showScore();
+  }
+}
+
+function showScore() {
+  document.getElementById("quiz").classList.add("hidden");
+  scoreContainer.classList.remove("hidden");
+  scoreElement.textContent = score;
+}
+
+nextButton.addEventListener("click", showQuestion);
+restartButton.addEventListener("click", () => {
+  score = 0;
+  currentQuestionIndex = 0;
+  scoreContainer.classList.add("hidden");
+  document.getElementById("quiz").classList.remove("hidden");
+  showQuestion();
+});
+
+showQuestion();
