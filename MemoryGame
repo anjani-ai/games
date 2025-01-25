@@ -1,0 +1,165 @@
+
+---
+
+### Code: Memory Match Game
+
+#### **index.html**
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Memory Match Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="game-container">
+    <h1>Memory Match Game</h1>
+    <p id="timer">Time Left: <span id="time">60</span>s</p>
+    <div class="grid"></div>
+    <button id="restart">Restart</button>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
+
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f4f4f4;
+  margin: 0;
+}
+
+.game-container {
+  text-align: center;
+  max-width: 600px;
+  width: 100%;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  cursor: pointer;
+  height: 100px;
+  transition: transform 0.3s;
+}
+
+.card.flipped {
+  background-color: #4caf50;
+  color: #fff;
+}
+
+#restart {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+const grid = document.querySelector('.grid');
+const timer = document.getElementById('time');
+const restartBtn = document.getElementById('restart');
+
+let cards = [];
+let flippedCards = [];
+let matchedPairs = 0;
+let timeLeft = 60;
+let interval;
+
+const icons = ['🍎', '🍌', '🍇', '🍓', '🍍', '🥝', '🍒', '🍋'];
+const deck = [...icons, ...icons];
+
+function shuffle(array) {
+  return array.sort(() => Math.random() - 0.5);
+}
+
+function createCards() {
+  grid.innerHTML = '';
+  cards = shuffle(deck).map((icon) => {
+    const card = document.createElement('div');
+    card.classList.add('card');
+    card.dataset.icon = icon;
+    card.innerHTML = '?';
+    grid.appendChild(card);
+    return card;
+  });
+}
+
+function flipCard(card) {
+  if (flippedCards.length < 2 && !card.classList.contains('flipped')) {
+    card.classList.add('flipped');
+    card.innerHTML = card.dataset.icon;
+    flippedCards.push(card);
+
+    if (flippedCards.length === 2) {
+      checkMatch();
+    }
+  }
+}
+
+function checkMatch() {
+  const [first, second] = flippedCards;
+
+  if (first.dataset.icon === second.dataset.icon) {
+    matchedPairs++;
+    flippedCards = [];
+    if (matchedPairs === icons.length) {
+      clearInterval(interval);
+      alert('You win!');
+    }
+  } else {
+    setTimeout(() => {
+      first.classList.remove('flipped');
+      second.classList.remove('flipped');
+      first.innerHTML = '?';
+      second.innerHTML = '?';
+      flippedCards = [];
+    }, 1000);
+  }
+}
+
+function startGame() {
+  matchedPairs = 0;
+  timeLeft = 60;
+  timer.textContent = timeLeft;
+  createCards();
+
+  interval = setInterval(() => {
+    timeLeft--;
+    timer.textContent = timeLeft;
+
+    if (timeLeft === 0) {
+      clearInterval(interval);
+      alert('Time is up! Try again.');
+    }
+  }, 1000);
+
+  cards.forEach((card) => {
+    card.addEventListener('click', () => flipCard(card));
+  });
+}
+
+restartBtn.addEventListener('click', () => {
+  clearInterval(interval);
+  startGame();
+});
+
+startGame();
