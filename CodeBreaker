@@ -1,0 +1,37 @@
+// Code Breaker - A simple puzzle game where players guess a secret code
+
+const secretCode = generateSecretCode();
+let attempts = 0;
+
+function generateSecretCode() {
+  return Math.floor(1000 + Math.random() * 9000).toString(); // 4-digit secret code
+}
+
+function checkGuess(guess) {
+  attempts++;
+  let correct = 0;
+  let misplaced = 0;
+
+  for (let i = 0; i < 4; i++) {
+    if (guess[i] === secretCode[i]) {
+      correct++;
+    } else if (secretCode.includes(guess[i])) {
+      misplaced++;
+    }
+  }
+
+  return { correct, misplaced, attempts };
+}
+
+function playGame() {
+  let guess = prompt("Enter a 4-digit code:");
+  if (guess === secretCode) {
+    alert(`Congratulations! You cracked the code in ${attempts + 1} attempts.`);
+  } else {
+    let feedback = checkGuess(guess);
+    alert(`Correct: ${feedback.correct}, Misplaced: ${feedback.misplaced}. Attempts: ${feedback.attempts}`);
+    playGame();
+  }
+}
+
+playGame();
